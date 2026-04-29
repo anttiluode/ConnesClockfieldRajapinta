@@ -9,7 +9,7 @@
 
 ## Abstract
 
-Alain Connes' spectral triple $(A, H, D)$ reconstructs geometry from the spectrum of a Dirac operator. The spectral action $\operatorname{Tr} \chi(D/\Lambda) + \langle \psi, D\psi \rangle$ yields Einstein gravity coupled to the Standard Model. The triple is static — a frozen equilibrium description.
+Alain Connes' spectral triple $(A, H, D)$ reconstructs geometry from the spectrum of a Dirac operator. The spectral action $\mathrm{Tr} \chi(D/\Lambda) + \langle \psi, D\psi \rangle$ yields Einstein gravity coupled to the Standard Model. The triple is static — a frozen equilibrium description.
 
 We formulate a **dynamic spectral triple** $(A(t), H(t), D(t), \Gamma(t))$ where
 
@@ -17,7 +17,7 @@ $$\Gamma(t) = \frac{1}{(1 + \tau \beta(t))^2}$$
 
 is the Clockfield scalar and $\Xi = 4/\pi$ is a critical threshold separating thawed $(\Gamma > \Xi)$ from frozen $(\Gamma \leq \Xi)$ regions. The observable is a partial trace over the thawed region only:
 
-$$S(t) = \operatorname{Tr}_{\mathcal{T}(t)} \chi(D(t)/\Lambda) + \langle \psi(t), D(t)\psi(t) \rangle$$
+$$S(t) = \mathrm{Tr}_{\mathcal{T}(t)} \chi(D(t)/\Lambda) + \langle \psi(t), D(t)\psi(t) \rangle$$
 
 Connes' static triple emerges as the degenerate limit when $\Gamma \to 0$ globally (total freeze). The dynamic triple provides a mathematical framework for non-equilibrium spectral geometry, with directional spectral flow, a thaw/freeze boundary, and a natural interpretation of the frozen region as a memory store (soft hair, filamentary topology). Numerical invariants — including simple rational ratios and the fine-structure constant $\alpha \approx 1/137$ — appear as approximate fixed points of the spectral flow under the sampling operation (rajapinta).
 
@@ -31,7 +31,7 @@ Connes' non-commutative geometry replaces the manifold with its spectral data. T
 
 $$d(p,q) = \sup \{ |a(p)-a(q)| : a \in A,\ \|[D,a]\| \leq 1 \}$$
 
-The spectral action principle generates the Einstein–Yang–Mills–Higgs system from the heat kernel expansion of $\operatorname{Tr} \chi(D/\Lambda)$.
+The spectral action principle generates the Einstein–Yang–Mills–Higgs system from the heat kernel expansion of $\mathrm{Tr} \chi(D/\Lambda)$.
 
 This is a profound achievement. Yet it describes a **static**, equilibrium geometry — a photograph of the system after all dynamics have ceased or been averaged out.
 
@@ -64,7 +64,7 @@ where:
 **Observable (Rajapinta Projection).**  
 The physical observable is a partial trace over only the thawed region:
 
-$$S(t) = \operatorname{Tr}_{\mathcal{T}(t)} \chi(D(t)/\Lambda) + \langle \psi(t), D(t)\psi(t) \rangle$$
+$$S(t) = \mathrm{Tr}_{\mathcal{T}(t)} \chi(D(t)/\Lambda) + \langle \psi(t), D(t)\psi(t) \rangle$$
 
 The frozen region does not contribute to the instantaneous observable but stores information as frozen topology (soft hair, filamentary structure). This information may be released later when the region thaws.
 
@@ -82,7 +82,7 @@ The Dirac operator $D(t)$ is not postulated separately; it is derived from the f
 If $\Gamma(t) \to 0$ globally (total freeze), then:
 
 - $\mathcal{F}(t)$ occupies all space, $\mathcal{T}(t)$ is empty
-- The rajapinta projection reduces to the full trace: $S(t) \to \operatorname{Tr} \chi(D_\infty/\Lambda)$
+- The rajapinta projection reduces to the full trace: $S(t) \to \mathrm{Tr} \chi(D_\infty/\Lambda)$
 - The static triple $(A_\infty, H_\infty, D_\infty)$ satisfies the Connes axioms (by construction, in this limit)
 - The spectral action recovers the Einstein–Yang–Mills–Higgs system
 
@@ -179,10 +179,10 @@ The boomerang returns (or binds) when its phase matches the frozen topology, con
 |-------|--------|-------|
 | Connes' static triple is the degenerate limit of the dynamic triple when $\Gamma \to 0$ | ✓ Exact by construction | This is the definition of the limit |
 | The dynamic triple evolves via the Clockfield PDE | ✓ By definition | The PDE is given |
-| The observable is a partial trace over the thawed region | ✓ Exact | The operation $\operatorname{Tr}_{\mathcal{T}(t)}$ is well-defined |
+| The observable is a partial trace over the thawed region | ✓ Exact | The operation $\mathrm{Tr}_{\mathcal{T}(t)}$ is well-defined |
 | Directional thaw cascade (100/100 trials) | ✓ Simulated | 1D ring with phase winding |
 | Avalanche exponent $P(s) \sim s^{-3/2}$ at criticality | ✓ Simulated | ArmChainNet |
-| AIS as Moiré interferometer $\operatorname{Re}[A_{\text{Nav}} \overline{A_{\text{Kv1}}} \cos(\Delta\phi)]$ | ✓ Biological fact | Leterrier 2018 |
+| AIS as Moiré interferometer $\mathrm{Re}[A_{\text{Nav}} \overline{A_{\text{Kv1}}} \cos(\Delta\phi)]$ | ✓ Biological fact | Leterrier 2018 |
 | Born rule $\cos^2(\Delta\theta/2)$ | ✓ Simulated | RMS 0.012 over 560 trials |
 | Stable rational ratios emerge from phase interference | ✓ Simulated | Rajapinta Number Forge |
 | $\alpha = 1/137$ from screening integral at $\Xi = 4/\pi$ | ≈ Derivation uses fitted $\tau\beta_0$ | Not yet first-principles |
