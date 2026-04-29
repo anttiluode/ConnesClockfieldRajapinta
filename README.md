@@ -165,7 +165,8 @@ Using the BPS soliton profile $A(r) = \tanh(r/\xi)$ and the freeze threshold con
 
 The following is a **conceptual model**, not a mathematical derivation. It is included because it motivated the mathematics and may guide future work.
 
-A frozen core (singularity, $\Gamma \to 0$) cannot emit directly. However, when the Clockfield gradient $\nabla \Gamma$ at the rajapinta exceeds a threshold, a chiral, delayed phase excitation is launched — a **boomerang-arm**. This excitation propagates through the structured medium (the $\Gamma$-shell), curving due to the gradient and ephaptic coupling. Its curved path leaves a **wake** — a filamentary trace in the $\Gamma$-field. The superposition of many wakes produces an interference pattern. The normal modes of this pattern are the eigenmodes of $D(t)$. The eigenvalues are the resonant frequencies.
+The boomerang-arm curves as it propagates through the structured Γ-medium due to the local gradient ∇Γ and near-field interactions between adjacent trajectories. 
+Its curved path leaves a filamentary wake — a topological scar in the Γ-field whose interference pattern is diagonalized by the operator D(t).
 
 The boomerang returns (or binds) when its phase matches the frozen topology, contributing to soft hair (genus $g$). The thaw cascade is directional because the phase-mismatch condition ($\Delta\theta \approx \pi$) propagates along phase discontinuities.
 
