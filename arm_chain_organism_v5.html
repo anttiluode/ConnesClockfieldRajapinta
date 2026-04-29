@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ARM CHAIN ORGANISM v5 — PerceptionLab — PRIME / GUE TEST</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+:root {
+  --bg:     #040408;
+  --panel:  #06060d;
+  --border: #0e0e1e;
+  --accent: #00e87a;
+  --amber:  #e8a000;
+  --danger: #e84040;
+  --cyan:   #00d4e8;
+  --violet: #a040e8;
+  --gold:   #e8c040;
+  --dim:    #161628;
+  --tdim:   #252540;
+  --text:   #5a5a88;
+  --tbr:    #9999bb;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-size: 11px;
+  overflow: hidden;
+  user-select: none;
+}
+
+#wrap { display: flex; flex-direction: column; height: 100%; }
+
+#hdr {
+  display: flex; align-items: center;
+  padding: 5px 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 14px; flex-shrink: 0;
+  background: rgba(0,0,0,0.4);
+}
+#hdr-t { letter-spacing: 5px; font-size: 12px; color: var(--accent);
+         text-shadow: 0 0 12px rgba(0,232,122,0.4); }
+#hdr-v { color: var(--gold); font-size: 9px; letter-spacing: 3px;
+         text-shadow: 0 0 8px rgba(232,192,64,0.5); }
+#hdr-s { color: var(--tdim); font-size: 9px; letter-spacing: 1px; }
+#stats { margin-left: auto; display: flex; gap: 16px; font-size: 10px; }
+.sv    { color: var(--tbr); }
+.sv-f  { color: var(--cyan); }
+.sv-g  { color: var(--violet); }
+.sv-p  { color: var(--gold); }
+
+#main {
+  flex: 1; display: flex; gap: 1px;
+  padding: 5px 5px 0 5px; min-height: 0;
+}
+.panel {
+  flex: 1; background: var(--panel);
+  border: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  min-width: 0; position: relative;
+  overflow: hidden;
+}
+.panel-field { border-color: #0a1a1e; }
+.panel-meas  { border-color: #12081e; }
+.panel-gue   { border-color: #2a2208; }
+.ph {
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between;
+  font-size: 8px; letter-spacing: 2px; color: var(--tdim);
+  flex-shrink: 0;
+}
+.ph-f { border-bottom-color: #0a1a1e; color: #1a3a42; }
+.ph-f span:first-child { color: var(--cyan); opacity: 0.7; }
+.ph-m { border-bottom-color: #180a2a; color: #301848; }
+.ph-m span:first-child { color: var(--violet); opacity: 0.8; }
+.ph-g { border-bottom-color: #2a2208; color: #443818; }
+.ph-g span:first-child { color: var(--gold); opacity: 0.85; }
+.pb {
+  flex: 1; display: flex;
+  align-items: center; justify-content: center;
+  min-height: 0;
+}
+canvas { image-rendering: pixelated; display: block; }
+
+.kill-overlay {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; letter-spacing: 4px; color: var(--danger);
+  pointer-events: none; opacity: 0; transition: opacity 0.4s;
+  text-shadow: 0 0 20px rgba(232,64,64,0.6);
+}
+.kill-overlay.vis { opacity: 0.75; }
+
+#meas-strip {
+  height: 160px; flex-shrink: 0;
+  margin: 2px 5px 0 5px;
+  display: flex; gap: 1px;
+}
+
+#ctrl {
+  border-top: 1px solid var(--border);
+  padding: 5px 14px;
+  display: flex; gap: 12px; align-items: center;
+  flex-shrink: 0; flex-wrap: wrap;
+  background: rgba(0,0,0,0.3);
+}
+.cg { display: flex; flex-direction: column; gap: 3px; }
+.cl { font-size: 8px; letter-spacing: 2px; color: var(--tdim); }
+.cl-f { color: #1e4a52; }
+.cl-g { color: #2a1040; }
+.cl-p { color: #443818; }
+.cr { display: flex; align-items: center; gap: 7px; }
+
+input[type=range] {
+  -webkit-appearance: none;
+  width: 90px; height: 1px;
+  background: var(--dim); outline: none; cursor: pointer;
+}
+input[type=range].field-sl { background: #0a1a1e; }
+input[type=range].gate-sl  { background: #180830; }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 9px; height: 9px;
+  background: var(--accent); box-shadow: 0 0 5px var(--accent); cursor: pointer;
+}
+input[type=range].field-sl::-webkit-slider-thumb {
+  background: var(--cyan); box-shadow: 0 0 5px var(--cyan);
+}
+input[type=range].gate-sl::-webkit-slider-thumb {
+  background: var(--violet); box-shadow: 0 0 5px var(--violet);
+}
+.vd   { color: var(--accent); width: 36px; font-size: 10px; }
+.vd-f { color: var(--cyan);   width: 36px; font-size: 10px; }
+.vd-g { color: var(--violet); width: 36px; font-size: 10px; }
+
+.regime {
+  font-size: 9px; letter-spacing: 2px; color: var(--tdim);
+  min-width: 90px; transition: color 0.4s, text-shadow 0.4s;
+}
+.regime.crit  { color: var(--accent); text-shadow: 0 0 8px rgba(0,232,122,0.5); }
+.regime.super { color: var(--danger); }
+.regime.sub   { color: var(--text); }
+
+button {
+  background: none;
+  border: 1px solid var(--dim);
+  color: var(--text);
+  font-family: inherit; font-size: 9px;
+  letter-spacing: 1px; padding: 3px 9px; cursor: pointer;
+  transition: all 0.15s;
+}
+button:hover  { border-color: var(--accent); color: var(--accent); }
+button.on     { border-color: var(--accent); color: var(--accent);
+                box-shadow: 0 0 6px rgba(0,232,122,0.2); }
+button.off    { border-color: var(--danger); color: var(--danger);
+                box-shadow: 0 0 6px rgba(232,64,64,0.2); }
+button.gate-on  { border-color: var(--violet); color: var(--violet);
+                  box-shadow: 0 0 6px rgba(160,64,232,0.3); }
+button.gate-off { border-color: var(--tdim); color: var(--tdim); }
+button.prime-on  { border-color: var(--gold); color: var(--gold);
+                   box-shadow: 0 0 6px rgba(232,192,64,0.3); }
+button.prime-off { border-color: var(--accent); color: var(--accent);
+                   box-shadow: 0 0 6px rgba(0,232,122,0.2); }
+
+.sep   { width: 1px; height: 28px; background: var(--border); flex-shrink:0; }
+.sep-f { background: #0a1a1e; }
+.sep-g { background: #180830; }
+.sep-p { background: #2a2208; }
+
+.gue-stat {
+  font-size: 9px; letter-spacing: 1px;
+  color: var(--gold); padding: 1px 4px;
+}
+.gue-stat .lbl { color: #443818; font-size: 8px; }
+.gue-stat .v   { color: var(--gold); }
+
+#foot {
+  padding: 2px 14px; font-size: 7px; color: var(--dim);
+  letter-spacing: 1px; border-top: 1px solid var(--border);
+  flex-shrink: 0; line-height: 1.6;
+}
+.foot-f { color: #0e2a30; }
+.foot-p { color: #2a2208; }
+</style>
+</head>
+<body>
+<div id="wrap">
+
+<div id="hdr">
+  <span id="hdr-t">ARM CHAIN ORGANISM</span>
+  <span id="hdr-v">v5 · PRIME / GUE</span>
+  <span id="hdr-s">FREQ MODE: <span id="hdr-mode" style="color:var(--accent)">UNIFORM</span> · SPECTRAL TEST READY</span>
+  <div id="stats">
+    <span>SPIKES/s <span class="sv" id="sv-spk">—</span></span>
+    <span>COHERENCE <span class="sv" id="sv-coh">0.000</span></span>
+    <span>|Ve| <span class="sv-f" id="sv-ve">0.000</span></span>
+    <span>σVe/σVm <span class="sv-g" id="sv-ratio">—</span></span>
+    <span>PEAKS <span class="sv-p" id="sv-pk">—</span></span>
+    <span>KS_GUE <span class="sv-p" id="sv-ks">—</span></span>
+    <span>t= <span class="sv" id="sv-t">0.0s</span></span>
+  </div>
+</div>
+
+<div id="main">
+  <div class="panel" id="p-phase">
+    <div class="ph"><span>PHASE FIELD</span><span>HUE = FAST ARM PHASE</span></div>
+    <div class="pb"><canvas id="c-phase"></canvas></div>
+    <div class="kill-overlay" id="kv">SLOW ARM KILLED</div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><span>AVALANCHE CASCADE</span><span>SPIKE EVENTS</span></div>
+    <div class="pb"><canvas id="c-spike"></canvas></div>
+  </div>
+
+  <div class="panel panel-field">
+    <div class="ph ph-f"><span>PRIMER FIELD Ve</span><span>τ_EP·dVe/dt = −Ve + γ·Δ(Vm)</span></div>
+    <div class="pb"><canvas id="c-field"></canvas></div>
+  </div>
+
+  <div class="panel">
+    <div class="ph"><span>TAKENS ATTRACTOR</span><span>S(t) vs S(t−τ)</span></div>
+    <div class="pb"><canvas id="c-takens"></canvas></div>
+  </div>
+</div>
+
+<!-- ── MEASUREMENT STRIP ── -->
+<div id="meas-strip">
+  <!-- Stability proof (compact) -->
+  <div class="panel panel-meas" style="flex:1.4">
+    <div class="ph ph-m">
+      <span>STABILITY PROOF</span>
+      <span style="color:#2a1040">σVe <span style="color:#00d4e8">CYAN</span> · σVm <span style="color:#e8a000">AMBER</span></span>
+    </div>
+    <div class="pb"><canvas id="c-var" style="image-rendering:auto"></canvas></div>
+  </div>
+
+  <!-- GUE spectrum panel (large) -->
+  <div class="panel panel-gue" style="flex:2.4">
+    <div class="ph ph-g">
+      <span>SPECTRAL PEAK-SPACING TEST</span>
+      <span style="color:#443818">
+        DATA <span style="color:var(--gold)">GOLD</span> ·
+        SNAPSHOT <span style="color:var(--violet)">VIOLET</span> ·
+        GUE <span style="color:var(--cyan)">CYAN</span> ·
+        POISSON <span style="color:var(--danger)">RED</span>
+      </span>
+    </div>
+    <div class="pb" style="flex-direction:column; gap:0;">
+      <div style="flex:1; width:100%; display:flex; align-items:center; justify-content:center; min-height:0;">
+        <canvas id="c-gue" style="image-rendering:auto"></canvas>
+      </div>
+      <div style="flex-shrink:0; padding:2px 8px; display:flex; gap:14px; font-size:8px; border-top:1px solid #2a2208; background:rgba(0,0,0,0.3);">
+        <span class="gue-stat"><span class="lbl">PEAKS</span> <span class="v" id="gue-npk">—</span></span>
+        <span class="gue-stat"><span class="lbl">⟨Δ⟩</span> <span class="v" id="gue-mean">—</span> Hz</span>
+        <span class="gue-stat"><span class="lbl">KS·GUE</span> <span class="v" id="gue-ksg">—</span></span>
+        <span class="gue-stat"><span class="lbl">KS·POISSON</span> <span class="v" id="gue-ksp">—</span></span>
+        <span class="gue-stat"><span class="lbl">VERDICT</span> <span class="v" id="gue-verdict" style="font-size:9px;">—</span></span>
+        <span class="gue-stat" style="margin-left:auto;"><span class="lbl">SNAPSHOT LABEL</span> <span class="v" id="gue-snap-lbl">—</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gate / status sidebar -->
+  <div class="panel panel-meas" style="flex:0.85">
+    <div class="ph ph-m"><span>GATE / STAB</span><span style="color:#2a1040">METRICS</span></div>
+    <div class="pb" style="flex-direction:column; gap:6px; padding:6px 10px; align-items:flex-start; justify-content:center;">
+      <div style="font-size:7px; color:#301848; letter-spacing:2px;">GATE TX (Vc)</div>
+      <div id="gate-ratio-bar" style="width:100%; height:4px; background:#0a0a18; position:relative;">
+        <div id="gate-bar-fill" style="position:absolute;left:0;top:0;height:100%;background:var(--violet);width:0%;transition:width 0.3s;"></div>
+      </div>
+      <div id="gate-ratio-txt" style="font-size:10px; color:var(--violet); letter-spacing:1px;">—</div>
+      <div style="font-size:7px; color:#1a1a30; margin-top:4px;">FIELD STABILITY INDEX</div>
+      <div id="stability-txt" style="font-size:11px; color:var(--accent); letter-spacing:2px;">—</div>
+      <div style="font-size:7px; color:#443818; margin-top:4px;">FREQ DISTRIBUTION</div>
+      <div id="freq-txt" style="font-size:9px; color:var(--gold); letter-spacing:1px;">UNIFORM [1,8]Hz</div>
+    </div>
+  </div>
+</div>
+
+<div id="ctrl">
+  <div class="cg">
+    <div class="cl">β — TIME RATE</div>
+    <div class="cr">
+      <input type="range" id="sl-b" min="0.25" max="2.2" step="0.01" value="1.0">
+      <span class="vd" id="v-b">1.00</span>
+      <span class="regime crit" id="reg">CRITICAL</span>
+    </div>
+  </div>
+  <div class="cg">
+    <div class="cl">ε — PHASE DIFFUSION</div>
+    <div class="cr">
+      <input type="range" id="sl-e" min="0.0" max="0.06" step="0.001" value="0.000">
+      <span class="vd" id="v-e">0.000</span>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="cg">
+    <div class="cl cl-f">γ — FIELD GAIN</div>
+    <div class="cr">
+      <input type="range" class="field-sl" id="sl-g" min="0.0" max="6.0" step="0.05" value="1.5">
+      <span class="vd-f" id="v-g">1.50</span>
+    </div>
+  </div>
+  <div class="cg">
+    <div class="cl cl-f">τ_EP — FIELD DECAY</div>
+    <div class="cr">
+      <input type="range" class="field-sl" id="sl-tep" min="1" max="60" step="1" value="12">
+      <span class="vd-f" id="v-tep">12</span>
+    </div>
+  </div>
+  <div class="cg">
+    <div class="cl cl-f">α — FIELD→THR</div>
+    <div class="cr">
+      <input type="range" class="field-sl" id="sl-a" min="0.0" max="0.25" step="0.005" value="0.05">
+      <span class="vd-f" id="v-a">0.050</span>
+    </div>
+  </div>
+
+  <div class="sep sep-f"></div>
+
+  <div class="cg">
+    <div class="cl cl-g">Vc — TIME-GATE</div>
+    <div class="cr">
+      <button id="btn-vc" class="gate-off">DISABLED</button>
+    </div>
+  </div>
+  <div class="cg">
+    <div class="cl cl-g">θ_vc — GATE THR</div>
+    <div class="cr">
+      <input type="range" class="gate-sl" id="sl-vc" min="0.01" max="0.8" step="0.01" value="0.25">
+      <span class="vd-g" id="v-vc">0.25</span>
+    </div>
+  </div>
+
+  <div class="sep sep-g"></div>
+
+  <!-- ── EXPERIMENT CONTROLS ─────────────────────────────────── -->
+  <div class="cg">
+    <div class="cl cl-p">FREQ MODE</div>
+    <div class="cr">
+      <button id="btn-prime" class="prime-off">UNIFORM</button>
+    </div>
+  </div>
+  <div class="cg">
+    <div class="cl cl-p">SPECTRAL TEST</div>
+    <div class="cr">
+      <button id="btn-analyze">ANALYZE</button>
+      <button id="btn-snap">SNAPSHOT</button>
+      <button id="btn-clear-snap">CLEAR</button>
+    </div>
+  </div>
+
+  <div class="sep sep-p"></div>
+
+  <div class="cg">
+    <div class="cl">SLOW ARM</div>
+    <div class="cr">
+      <button id="btn-slow" class="on">ENABLED</button>
+    </div>
+  </div>
+  <div class="cg">
+    <div class="cl">SYSTEM</div>
+    <div class="cr">
+      <button id="btn-rst">RESET</button>
+      <button id="btn-prb">PERTURB</button>
+    </div>
+  </div>
+  <div class="cg">
+    <div class="cl">τ DELAY</div>
+    <div class="cr">
+      <input type="range" id="sl-tau" min="5" max="120" step="1" value="35">
+      <span class="vd" id="v-tau">35</span>
+    </div>
+  </div>
+</div>
+
+<div id="foot">
+  v5 EXPERIMENTS &nbsp;·&nbsp;
+  <span class="foot-p">PRIME-LOG MODE: ω_i = log(p_i) rescaled into [1,8] Hz · arithmetic linear-independence over Q</span>
+  &nbsp;·&nbsp;
+  <span class="foot-p">SPECTRAL TEST: FFT leakage S(t) → peaks → consecutive spacings s_i = Δ_i/⟨Δ⟩ → vs Wigner-GUE p(s)=(32/π²)s²·e^(−4s²/π) and Poisson p(s)=e^(−s)</span>
+  &nbsp;·&nbsp; small KS = good fit · run ≥30s before ANALYZE for reliable statistics
+</div>
+
+</div><!-- #wrap -->
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════════════════════
+const N   = 32;
+const NC  = N * N;          // 1024 cells
+const PI2 = 2 * Math.PI;
+
+const A_BASE       = 0.65;
+const A_CLAMP      = 2.0;
+const SPIKE_SPREAD = 0.55;
+const A_DECAY_F    = 0.972;
+const A_DECAY_S    = 0.988;
+const GLOW_DECAY   = 0.76;
+
+const THR          = 0.38;
+const THR_MIN_FRAC = 0.20;
+const THR_MAX_FRAC = 2.00;
+
+const DT  = 0.005;          // 200 Hz sample rate
+const SPF = 3;
+
+// Leakage history — needs to be power-of-2 and large enough for FFT
+const FFT_N  = 4096;        // ~20.5 s of data
+const leak   = new Float32Array(FFT_N);
+let   hptr   = 0;
+let   t_s    = 0;
+
+// Variance history (stability strip)
+const VAR_H    = 300;
+const ve_var_h = new Float32Array(VAR_H);
+const vm_var_h = new Float32Array(VAR_H);
+const rat_h    = new Float32Array(VAR_H);
+let   var_ptr  = 0;
+
+// Gate stats
+let gate_fired_acc = 0;
+let gate_total_acc = 0;
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+const fp  = new Float32Array(NC);
+const ff  = new Float32Array(NC);   // fast natural frequencies
+const fA  = new Float32Array(NC);
+
+const sp  = new Float32Array(NC);
+const sf  = new Float32Array(NC);
+const sA  = new Float32Array(NC);
+
+const glo = new Float32Array(NC);
+const tmp = new Float32Array(NC);
+const spk = new Uint8Array(NC);
+
+const Ve  = new Float32Array(NC);
+const Vm  = new Float32Array(NC);
+const Thr = new Float32Array(NC);
+const prod = new Float32Array(NC);
+
+// ═══════════════════════════════════════════════════════════════
+//  PARAMETERS
+// ═══════════════════════════════════════════════════════════════
+let beta      = 1.0;
+let epsilon   = 0.000;
+let gamma_ep  = 1.5;
+let tau_ep    = 12.0;
+let alpha_ep  = 0.05;
+let slow_on   = true;
+let tau_delay = 35;
+let vc_on     = false;
+let vc_thr    = 0.25;
+let prime_mode = false;     // false = uniform, true = log(p)
+let spk_total = 0;
+
+// ═══════════════════════════════════════════════════════════════
+//  PRIME LIST — first NC primes via simple sieve
+// ═══════════════════════════════════════════════════════════════
+function generatePrimes(nNeeded) {
+  // Estimate upper bound via prime number theorem with safety margin
+  const upper = Math.max(20, Math.ceil(nNeeded * (Math.log(nNeeded) + Math.log(Math.log(nNeeded + 1)) + 2)));
+  const sieve = new Uint8Array(upper + 1);
+  sieve[0] = sieve[1] = 1;
+  for (let i = 2; i * i <= upper; i++) {
+    if (!sieve[i]) for (let j = i * i; j <= upper; j += i) sieve[j] = 1;
+  }
+  const primes = [];
+  for (let i = 2; i <= upper && primes.length < nNeeded; i++) {
+    if (!sieve[i]) primes.push(i);
+  }
+  return primes;
+}
+const PRIMES = generatePrimes(NC);
+// Precompute log(p) for each cell, rescaled to [1, 8] Hz to match uniform mode range
+const LOGP = new Float32Array(NC);
+{
+  const lo = Math.log(PRIMES[0]);          // log 2
+  const hi = Math.log(PRIMES[NC - 1]);     // log of 1024th prime
+  const target_lo = 1.0, target_hi = 8.0;
+  for (let i = 0; i < NC; i++) {
+    const lp = Math.log(PRIMES[i]);
+    LOGP[i] = target_lo + (lp - lo) / (hi - lo) * (target_hi - target_lo);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+function init() {
+  if (prime_mode) {
+    // Deterministic: cell i gets log(p_i)-rescaled frequency
+    for (let i = 0; i < NC; i++) {
+      ff[i] = LOGP[i];
+      fp[i] = Math.random() * PI2;
+      fA[i] = A_BASE * (0.75 + Math.random() * 0.5);
+
+      // Slow arms also get prime-log structure, scaled to [0.1, 1] Hz
+      sf[i] = 0.1 + (LOGP[i] - 1.0) / 7.0 * 0.9;
+      sp[i] = Math.random() * PI2;
+      sA[i] = A_BASE * (0.75 + Math.random() * 0.5);
+
+      glo[i] = 0; Ve[i] = 0; prod[i] = 0;
+    }
+  } else {
+    for (let i = 0; i < NC; i++) {
+      ff[i] = 1.0 + Math.random() * 7.0;          // uniform [1,8] Hz
+      fp[i] = Math.random() * PI2;
+      fA[i] = A_BASE * (0.75 + Math.random() * 0.5);
+
+      sf[i] = 0.1 + Math.random() * 0.9;          // uniform [0.1,1] Hz
+      sp[i] = Math.random() * PI2;
+      sA[i] = A_BASE * (0.75 + Math.random() * 0.5);
+
+      glo[i] = 0; Ve[i] = 0; prod[i] = 0;
+    }
+  }
+  leak.fill(0); hptr = 0; t_s = 0;
+  ve_var_h.fill(0); vm_var_h.fill(0); rat_h.fill(0); var_ptr = 0;
+  gate_fired_acc = 0; gate_total_acc = 0;
+}
+
+const I = (x, y) => ((y + N) % N) * N + ((x + N) % N);
+
+function diffuse(phi, eps) {
+  if (eps < 1e-7) return;
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const i = y * N + x;
+      let lap = 0;
+      const nb = [I(x+1,y), I(x-1,y), I(x,y+1), I(x,y-1)];
+      for (const j of nb) {
+        let d = phi[j] - phi[i];
+        d -= PI2 * Math.round(d / PI2);
+        lap += d;
+      }
+      tmp[i] = phi[i] + eps * lap;
+    }
+  }
+  phi.set(tmp);
+}
+
+function updateField() {
+  for (let i = 0; i < NC; i++) Vm[i] = fA[i] * Math.sin(fp[i]);
+  const inv_tau = DT / tau_ep;
+  const g = gamma_ep;
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const i = y * N + x;
+      const lap = Vm[I(x+1,y)] + Vm[I(x-1,y)] +
+                  Vm[I(x,y+1)] + Vm[I(x,y-1)] - 4.0 * Vm[i];
+      Ve[i] += inv_tau * (-Ve[i] + g * lap);
+    }
+  }
+  const a = alpha_ep;
+  for (let i = 0; i < NC; i++) {
+    const mod = 1.0 - a * Ve[i];
+    Thr[i] = THR * Math.min(THR_MAX_FRAC, Math.max(THR_MIN_FRAC, mod));
+  }
+}
+
+function step() {
+  const dt = DT * beta;
+  let n_spk = 0;
+  spk.fill(0);
+
+  for (let i = 0; i < NC; i++) {
+    fp[i] += PI2 * ff[i] * dt;
+    if (slow_on) sp[i] += PI2 * sf[i] * dt;
+  }
+
+  diffuse(fp, epsilon);
+  if (slow_on) diffuse(sp, epsilon * 0.22);
+
+  updateField();
+
+  for (let i = 0; i < NC; i++) {
+    const zf = fA[i] * Math.sin(fp[i]);
+    const zs = slow_on ? sA[i] * Math.sin(sp[i]) : 1.0;
+    const p = Math.abs(zf * zs);
+    prod[i] = p;
+    if (p > Thr[i]) { spk[i] = 1; glo[i] = 1.0; n_spk++; }
+  }
+
+  let n_gated = 0, n_attempted = 0;
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const i = y * N + x;
+      if (!spk[i]) continue;
+      n_attempted++;
+      const gate_pass = !vc_on || (prod[i] > vc_thr);
+      if (gate_pass) {
+        n_gated++;
+        const nb = [I(x+1,y), I(x-1,y), I(x,y+1), I(x,y-1)];
+        for (const j of nb) fA[j] = Math.min(fA[j] + SPIKE_SPREAD, A_CLAMP);
+      }
+      fA[i] *= 0.18;
+    }
+  }
+  gate_fired_acc += n_gated;
+  gate_total_acc += n_attempted;
+
+  for (let i = 0; i < NC; i++) {
+    fA[i] = fA[i] * A_DECAY_F + A_BASE * (1 - A_DECAY_F);
+    if (slow_on) sA[i] = sA[i] * A_DECAY_S + A_BASE * (1 - A_DECAY_S);
+    glo[i] *= GLOW_DECAY;
+  }
+
+  let S = 0;
+  for (let i = 0; i < NC; i++) S += fA[i] * Math.sin(fp[i]);
+  leak[hptr % FFT_N] = S / NC;
+  hptr++;
+  t_s += DT;
+  spk_total = n_spk;
+
+  // Variance sample
+  let ve_mean = 0, vm_mean = 0;
+  for (let i = 0; i < NC; i++) { ve_mean += Ve[i]; vm_mean += Vm[i]; }
+  ve_mean /= NC; vm_mean /= NC;
+  let ve_var = 0, vm_var = 0;
+  for (let i = 0; i < NC; i++) {
+    ve_var += (Ve[i] - ve_mean) ** 2;
+    vm_var += (Vm[i] - vm_mean) ** 2;
+  }
+  ve_var = Math.sqrt(ve_var / NC);
+  vm_var = Math.sqrt(vm_var / NC);
+  ve_var_h[var_ptr % VAR_H] = ve_var;
+  vm_var_h[var_ptr % VAR_H] = vm_var;
+  rat_h[var_ptr % VAR_H]    = vm_var > 1e-6 ? ve_var / vm_var : 0;
+  var_ptr++;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FFT — iterative radix-2 Cooley-Tukey
+// ═══════════════════════════════════════════════════════════════
+function fft(re, im) {
+  const n = re.length;
+  // Bit-reversal permutation
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      let t = re[i]; re[i] = re[j]; re[j] = t;
+      t = im[i]; im[i] = im[j]; im[j] = t;
+    }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = -PI2 / len;
+    const wlen_r = Math.cos(ang);
+    const wlen_i = Math.sin(ang);
+    const half = len >> 1;
+    for (let i = 0; i < n; i += len) {
+      let w_r = 1, w_i = 0;
+      for (let k = 0; k < half; k++) {
+        const ur = re[i + k];
+        const ui = im[i + k];
+        const tr = re[i + k + half] * w_r - im[i + k + half] * w_i;
+        const ti = re[i + k + half] * w_i + im[i + k + half] * w_r;
+        re[i + k]        = ur + tr;
+        im[i + k]        = ui + ti;
+        re[i + k + half] = ur - tr;
+        im[i + k + half] = ui - ti;
+        const nw_r = w_r * wlen_r - w_i * wlen_i;
+        const nw_i = w_r * wlen_i + w_i * wlen_r;
+        w_r = nw_r; w_i = nw_i;
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GUE ANALYSIS
+// ═══════════════════════════════════════════════════════════════
+const HIST_BINS = 26;          // bins from s=0 to s=4 (width 4/26 ≈ 0.154)
+const HIST_MAX  = 4.0;
+let hist_current = new Float32Array(HIST_BINS);
+let hist_snapshot = null;       // null when no snapshot taken
+let snapshot_label = '';
+let last_npk = 0, last_mean = 0, last_ks_gue = 0, last_ks_poi = 0;
+let last_verdict = '—';
+
+// Wigner surmise CDFs for KS test
+function gue_pdf(s) { return (32 / (Math.PI * Math.PI)) * s * s * Math.exp(-4 * s * s / Math.PI); }
+function poi_pdf(s) { return Math.exp(-s); }
+
+// Numerical CDFs (precomputed once)
+const CDF_S = new Float32Array(401);
+const CDF_GUE = new Float32Array(401);
+const CDF_POI = new Float32Array(401);
+{
+  const ds = 0.025;
+  let cg = 0, cp = 0;
+  for (let k = 0; k < 401; k++) {
+    const s = k * ds;
+    CDF_S[k] = s;
+    CDF_GUE[k] = cg;
+    CDF_POI[k] = cp;
+    if (k < 400) {
+      const s2 = s + ds;
+      cg += 0.5 * (gue_pdf(s) + gue_pdf(s2)) * ds;
+      cp += 0.5 * (poi_pdf(s) + poi_pdf(s2)) * ds;
+    }
+  }
+  // normalize (CDFs already normalize approximately to 1 at s=10, fine here)
+}
+
+function lookupCDF(arr, s) {
+  if (s <= 0) return 0;
+  if (s >= 10) return arr[400];
+  const idx = Math.min(399, Math.floor(s / 0.025));
+  const f = (s - CDF_S[idx]) / 0.025;
+  return arr[idx] * (1 - f) + arr[idx + 1] * f;
+}
+
+function analyzeSpectrum() {
+  // Need at least FFT_N samples in buffer
+  if (hptr < FFT_N) {
+    document.getElementById('gue-verdict').textContent = `WAIT: ${hptr}/${FFT_N}`;
+    return;
+  }
+
+  // Copy most recent FFT_N samples in temporal order
+  const re = new Float32Array(FFT_N);
+  const im = new Float32Array(FFT_N);
+  const start = hptr % FFT_N;
+  for (let k = 0; k < FFT_N; k++) {
+    re[k] = leak[(start + k) % FFT_N];
+  }
+
+  // Detrend (subtract mean) and apply Hann window
+  let mean = 0;
+  for (let k = 0; k < FFT_N; k++) mean += re[k];
+  mean /= FFT_N;
+  for (let k = 0; k < FFT_N; k++) {
+    const w = 0.5 * (1 - Math.cos(PI2 * k / (FFT_N - 1)));
+    re[k] = (re[k] - mean) * w;
+  }
+
+  fft(re, im);
+
+  // Magnitude spectrum, only positive frequencies
+  const half = FFT_N >> 1;
+  const mag = new Float32Array(half);
+  for (let k = 0; k < half; k++) mag[k] = Math.sqrt(re[k] * re[k] + im[k] * im[k]);
+
+  const fs = 1 / DT;             // 200 Hz
+  const df = fs / FFT_N;         // ~0.0488 Hz per bin
+
+  // Restrict to band of interest: [0.5, 15] Hz (covers 1-8 Hz fundamentals + harmonics)
+  const k_lo = Math.max(2, Math.floor(0.5 / df));
+  const k_hi = Math.min(half - 2, Math.floor(15 / df));
+
+  // Background estimate: median + MAD over the band
+  const bandvals = [];
+  for (let k = k_lo; k <= k_hi; k++) bandvals.push(mag[k]);
+  bandvals.sort((a, b) => a - b);
+  const median = bandvals[bandvals.length >> 1];
+  const dev = bandvals.map(v => Math.abs(v - median));
+  dev.sort((a, b) => a - b);
+  const mad = dev[dev.length >> 1];
+  const peak_thr = median + 4.0 * mad;
+
+  // Peak detection — local max above threshold, min separation 2 bins
+  const peaks = [];
+  let last_pk = -10;
+  for (let k = k_lo; k <= k_hi; k++) {
+    if (mag[k] < peak_thr) continue;
+    if (mag[k] <= mag[k - 1] || mag[k] <= mag[k + 1]) continue;
+    if (k - last_pk < 2) {
+      // keep larger of the two
+      if (peaks.length && mag[k] > mag[peaks[peaks.length - 1]]) peaks[peaks.length - 1] = k;
+      continue;
+    }
+    peaks.push(k);
+    last_pk = k;
+  }
+
+  if (peaks.length < 8) {
+    last_npk = peaks.length;
+    document.getElementById('gue-npk').textContent = peaks.length;
+    document.getElementById('gue-verdict').textContent = 'TOO FEW PEAKS';
+    last_verdict = 'TOO FEW PEAKS';
+    return;
+  }
+
+  // Convert to Hz, compute consecutive spacings
+  const freqs = peaks.map(k => k * df);
+  const deltas = [];
+  for (let i = 1; i < freqs.length; i++) deltas.push(freqs[i] - freqs[i - 1]);
+  const mean_delta = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+
+  // Normalize: s_i = Δ_i / ⟨Δ⟩
+  const svals = deltas.map(d => d / mean_delta).filter(s => s < HIST_MAX * 1.5);
+
+  // Histogram
+  hist_current = new Float32Array(HIST_BINS);
+  const bin_w = HIST_MAX / HIST_BINS;
+  for (const s of svals) {
+    if (s >= HIST_MAX) continue;
+    const b = Math.floor(s / bin_w);
+    if (b >= 0 && b < HIST_BINS) hist_current[b]++;
+  }
+  // Convert to density
+  const total = svals.length;
+  for (let b = 0; b < HIST_BINS; b++) hist_current[b] = hist_current[b] / (total * bin_w);
+
+  // KS statistic vs GUE and Poisson
+  const sorted = svals.slice().sort((a, b) => a - b);
+  let ks_gue = 0, ks_poi = 0;
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    const ecdf = (i + 1) / sorted.length;
+    const cg = lookupCDF(CDF_GUE, s);
+    const cp = lookupCDF(CDF_POI, s);
+    ks_gue = Math.max(ks_gue, Math.abs(ecdf - cg));
+    ks_poi = Math.max(ks_poi, Math.abs(ecdf - cp));
+  }
+
+  last_npk = peaks.length;
+  last_mean = mean_delta;
+  last_ks_gue = ks_gue;
+  last_ks_poi = ks_poi;
+
+  let verdict;
+  const margin = 0.03;
+  if (ks_gue < ks_poi - margin) verdict = 'GUE-LIKE';
+  else if (ks_poi < ks_gue - margin) verdict = 'POISSON-LIKE';
+  else verdict = 'INCONCLUSIVE';
+  last_verdict = verdict;
+
+  document.getElementById('gue-npk').textContent = peaks.length;
+  document.getElementById('gue-mean').textContent = mean_delta.toFixed(3);
+  document.getElementById('gue-ksg').textContent = ks_gue.toFixed(3);
+  document.getElementById('gue-ksp').textContent = ks_poi.toFixed(3);
+  const ve = document.getElementById('gue-verdict');
+  ve.textContent = verdict;
+  if (verdict === 'GUE-LIKE')           ve.style.color = 'var(--cyan)';
+  else if (verdict === 'POISSON-LIKE')  ve.style.color = 'var(--danger)';
+  else                                  ve.style.color = 'var(--gold)';
+}
+
+function snapshotCurrent() {
+  if (last_npk < 8) return;
+  hist_snapshot = new Float32Array(hist_current);
+  snapshot_label = (prime_mode ? 'PRIME' : 'UNIFORM') +
+    `  n=${last_npk}  KSg=${last_ks_gue.toFixed(2)}  KSp=${last_ks_poi.toFixed(2)}`;
+  document.getElementById('gue-snap-lbl').textContent = snapshot_label;
+}
+function clearSnapshot() {
+  hist_snapshot = null;
+  snapshot_label = '';
+  document.getElementById('gue-snap-lbl').textContent = '—';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CANVASES
+// ═══════════════════════════════════════════════════════════════
+const CELL = 8;
+const CW   = N * CELL;
+
+const cP = document.getElementById('c-phase');
+const cS = document.getElementById('c-spike');
+const cF = document.getElementById('c-field');
+const cT = document.getElementById('c-takens');
+const cV = document.getElementById('c-var');
+const cG = document.getElementById('c-gue');
+
+cP.width = cS.width = cF.width = CW;
+cP.height = cS.height = cF.height = CW;
+cT.width = cT.height = 256;
+
+function fitCanvas(c) {
+  const r = c.parentElement.getBoundingClientRect();
+  c.width  = Math.max(100, r.width  | 0);
+  c.height = Math.max(40,  r.height | 0);
+}
+
+const ctxP = cP.getContext('2d');
+const ctxS = cS.getContext('2d');
+const ctxF = cF.getContext('2d');
+const ctxT = cT.getContext('2d');
+const ctxV = cV.getContext('2d');
+const ctxG = cG.getContext('2d');
+
+const imgP = ctxP.createImageData(CW, CW);
+const imgS = ctxS.createImageData(CW, CW);
+const imgF = ctxF.createImageData(CW, CW);
+const dP = imgP.data, dS = imgS.data, dF = imgF.data;
+for (let i = 3; i < dP.length; i += 4) dP[i] = dS[i] = dF[i] = 255;
+
+function hsl2rgb(h, s, l) {
+  const c = (1 - Math.abs(2*l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+  let r=0, g=0, b=0;
+  if      (h < 60)  { r=c; g=x; }
+  else if (h < 120) { r=x; g=c; }
+  else if (h < 180) {      g=c; b=x; }
+  else if (h < 240) {      g=x; b=c; }
+  else if (h < 300) { r=x;      b=c; }
+  else              { r=c;      b=x; }
+  return [((r+m)*255+0.5)|0, ((g+m)*255+0.5)|0, ((b+m)*255+0.5)|0];
+}
+
+function renderPhase() {
+  const sat = slow_on ? 0.95 : 0.5;
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const i = y * N + x;
+      const phase = ((fp[i] % PI2) + PI2) % PI2;
+      const hue   = (phase / PI2) * 360;
+      const amp   = Math.min(fA[i] / 1.6, 1.0);
+      const light = 0.10 + amp * 0.45;
+      const [r, g, b] = hsl2rgb(hue, sat, light);
+      for (let py = 0; py < CELL; py++) {
+        let p = ((y * CELL + py) * CW + x * CELL) * 4;
+        for (let px = 0; px < CELL; px++, p += 4) {
+          dP[p]=r; dP[p+1]=g; dP[p+2]=b; dP[p+3]=255;
+        }
+      }
+    }
+  }
+  ctxP.putImageData(imgP, 0, 0);
+}
+
+function renderSpike() {
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const i = y * N + x;
+      const g_ = glo[i];
+      const r  = (Math.min(g_ * 255, 255))|0;
+      const g2 = (Math.min(g_ * 195, 255))|0;
+      const b2 = (Math.min(g_ * g_ * 80, 255))|0;
+      for (let py = 0; py < CELL; py++) {
+        let p = ((y * CELL + py) * CW + x * CELL) * 4;
+        for (let px = 0; px < CELL; px++, p += 4) {
+          dS[p]=r; dS[p+1]=g2; dS[p+2]=b2; dS[p+3]=255;
+        }
+      }
+    }
+  }
+  ctxS.putImageData(imgS, 0, 0);
+}
+
+function renderField() {
+  let vmax = 0.05;
+  for (let i = 0; i < NC; i++) { const av = Math.abs(Ve[i]); if (av > vmax) vmax = av; }
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const i = y * N + x;
+      const v = Ve[i] / vmax;
+      let r, g, b;
+      if (v >= 0) {
+        const vv = v * v;
+        r = (v  * 10  + vv * 30)|0;
+        g = (v  * 210 + vv * 40)|0;
+        b = (v  * 200 + vv * 50)|0;
+      } else {
+        const nv = -v; const vv = nv * nv;
+        r = (nv * 220 + vv * 35)|0;
+        g = (nv *  20            )|0;
+        b = (nv *  80 + vv * 40)|0;
+      }
+      for (let py = 0; py < CELL; py++) {
+        let p = ((y * CELL + py) * CW + x * CELL) * 4;
+        for (let px = 0; px < CELL; px++, p += 4) {
+          dF[p]=r; dF[p+1]=g; dF[p+2]=b; dF[p+3]=255;
+        }
+      }
+    }
+  }
+  ctxF.putImageData(imgF, 0, 0);
+}
+
+function renderTakens() {
+  const W = cT.width, H2 = cT.height;
+  ctxT.fillStyle = '#040408';
+  ctxT.fillRect(0, 0, W, H2);
+  ctxT.strokeStyle = '#0a0a18'; ctxT.lineWidth = 1;
+  for (let k = 1; k < 4; k++) {
+    ctxT.beginPath();
+    ctxT.moveTo(k*W/4,0);  ctxT.lineTo(k*W/4,H2);
+    ctxT.moveTo(0,k*H2/4); ctxT.lineTo(W,k*H2/4);
+    ctxT.stroke();
+  }
+  const n = Math.min(hptr, 900);
+  if (n < tau_delay + 4) return;
+  let lmax = 0;
+  for (let k = 0; k < n; k++) lmax = Math.max(lmax, Math.abs(leak[(hptr - 1 - k + FFT_N) % FFT_N]));
+  if (lmax < 1e-6) return;
+  const SCALE = (W * 0.44) / lmax;
+  const n_draw = Math.min(n - tau_delay, 480);
+  for (let k = 0; k < n_draw; k++) {
+    const age = n_draw - k;
+    const a   = k / n_draw;
+    const j1 = (hptr - age + FFT_N) % FFT_N;
+    const j2 = (hptr - age - tau_delay + FFT_N * 2) % FFT_N;
+    const sx = (W  / 2 + leak[j1] * SCALE) | 0;
+    const sy = (H2 / 2 - leak[j2] * SCALE) | 0;
+    const bright = a * a;
+    const rr = (bright * 15)  | 0;
+    const gg = (bright * 230) | 0;
+    const bb = (bright * 90)  | 0;
+    ctxT.fillStyle = `rgb(${rr},${gg},${bb})`;
+    const sz = a > 0.92 ? 2 : 1;
+    ctxT.fillRect(sx - (sz>>1), sy - (sz>>1), sz, sz);
+  }
+  if (hptr > tau_delay) {
+    const j1 = (hptr - 1 + FFT_N) % FFT_N;
+    const j2 = (hptr - 1 - tau_delay + FFT_N * 2) % FFT_N;
+    const sx = (W  / 2 + leak[j1] * SCALE) | 0;
+    const sy = (H2 / 2 - leak[j2] * SCALE) | 0;
+    ctxT.fillStyle = '#ffffff';
+    ctxT.fillRect(sx-2, sy-2, 4, 4);
+  }
+}
+
+function renderVar() {
+  fitCanvas(cV);
+  const W = cV.width, H2 = cV.height;
+  ctxV.fillStyle = '#030306'; ctxV.fillRect(0, 0, W, H2);
+  ctxV.strokeStyle = '#0a0a18'; ctxV.lineWidth = 1;
+  ctxV.beginPath(); ctxV.moveTo(0, H2/2); ctxV.lineTo(W, H2/2); ctxV.stroke();
+
+  const n = Math.min(var_ptr, VAR_H);
+  if (n < 4) return;
+  let ve_max = 1e-6, vm_max = 1e-6, rat_max = 1e-6;
+  for (let k = 0; k < n; k++) {
+    const idx = (var_ptr - n + k + VAR_H) % VAR_H;
+    ve_max  = Math.max(ve_max,  ve_var_h[idx]);
+    vm_max  = Math.max(vm_max,  vm_var_h[idx]);
+    rat_max = Math.max(rat_max, rat_h[idx]);
+  }
+  const shared_max = Math.max(ve_max, vm_max) * 1.1;
+  const rat_scale  = Math.max(rat_max, 0.5) * 1.15;
+
+  ctxV.strokeStyle = 'rgba(232,160,0,0.7)'; ctxV.lineWidth = 1;
+  ctxV.beginPath();
+  for (let k = 0; k < n; k++) {
+    const idx = (var_ptr - n + k + VAR_H) % VAR_H;
+    const px = (k / (VAR_H - 1)) * W;
+    const py = H2 - (vm_var_h[idx] / shared_max) * H2 * 0.9 - 2;
+    k === 0 ? ctxV.moveTo(px, py) : ctxV.lineTo(px, py);
+  }
+  ctxV.stroke();
+
+  ctxV.strokeStyle = 'rgba(0,212,232,0.85)'; ctxV.lineWidth = 1.5;
+  ctxV.beginPath();
+  for (let k = 0; k < n; k++) {
+    const idx = (var_ptr - n + k + VAR_H) % VAR_H;
+    const px = (k / (VAR_H - 1)) * W;
+    const py = H2 - (ve_var_h[idx] / shared_max) * H2 * 0.9 - 2;
+    k === 0 ? ctxV.moveTo(px, py) : ctxV.lineTo(px, py);
+  }
+  ctxV.stroke();
+
+  ctxV.strokeStyle = 'rgba(160,64,232,0.6)'; ctxV.lineWidth = 1;
+  ctxV.setLineDash([3,3]);
+  ctxV.beginPath();
+  for (let k = 0; k < n; k++) {
+    const idx = (var_ptr - n + k + VAR_H) % VAR_H;
+    const px = (k / (VAR_H - 1)) * W;
+    const rval = rat_h[idx] / rat_scale;
+    const py = H2 - rval * (H2 * 0.35) - 2;
+    k === 0 ? ctxV.moveTo(px, py) : ctxV.lineTo(px, py);
+  }
+  ctxV.stroke();
+  ctxV.setLineDash([]);
+}
+
+function renderGUE() {
+  fitCanvas(cG);
+  const W = cG.width, H2 = cG.height;
+  ctxG.fillStyle = '#030302'; ctxG.fillRect(0, 0, W, H2);
+
+  // Plot region
+  const PAD_L = 28, PAD_R = 8, PAD_T = 8, PAD_B = 16;
+  const pw = W - PAD_L - PAD_R;
+  const ph = H2 - PAD_T - PAD_B;
+
+  // Y-scale: max of both densities and theory curves
+  const Y_MAX = 1.1;          // GUE peaks ~1.0; Poisson peaks at 1.0 at s=0
+  // X-scale: 0 to HIST_MAX (4)
+  const x2px = s => PAD_L + (s / HIST_MAX) * pw;
+  const y2py = y => PAD_T + (1 - Math.min(y, Y_MAX) / Y_MAX) * ph;
+
+  // Axis lines
+  ctxG.strokeStyle = '#1a1408'; ctxG.lineWidth = 1;
+  ctxG.beginPath();
+  ctxG.moveTo(PAD_L, PAD_T);  ctxG.lineTo(PAD_L, PAD_T + ph);
+  ctxG.lineTo(PAD_L + pw, PAD_T + ph); ctxG.stroke();
+
+  // X grid + labels
+  ctxG.font = '8px Share Tech Mono, monospace';
+  ctxG.fillStyle = '#443818';
+  for (let s = 0; s <= 4; s += 1) {
+    const x = x2px(s);
+    ctxG.strokeStyle = '#120e04';
+    ctxG.beginPath(); ctxG.moveTo(x, PAD_T); ctxG.lineTo(x, PAD_T + ph); ctxG.stroke();
+    ctxG.fillText(`${s}`, x - 3, PAD_T + ph + 11);
+  }
+  ctxG.fillText('s = Δ / ⟨Δ⟩', PAD_L + pw - 60, PAD_T + ph + 11);
+  ctxG.fillStyle = '#443818';
+  ctxG.fillText('p(s)', 4, PAD_T + 8);
+
+  const bin_w = HIST_MAX / HIST_BINS;
+
+  // Snapshot bars (drawn first, behind)
+  if (hist_snapshot) {
+    ctxG.fillStyle = 'rgba(160,64,232,0.45)';
+    for (let b = 0; b < HIST_BINS; b++) {
+      const x = x2px(b * bin_w);
+      const x2 = x2px((b + 1) * bin_w);
+      const y = y2py(hist_snapshot[b]);
+      ctxG.fillRect(x, y, x2 - x - 1, PAD_T + ph - y);
+    }
+  }
+
+  // Current histogram bars (gold)
+  ctxG.fillStyle = 'rgba(232,192,64,0.78)';
+  for (let b = 0; b < HIST_BINS; b++) {
+    const x = x2px(b * bin_w);
+    const x2 = x2px((b + 1) * bin_w);
+    const y = y2py(hist_current[b]);
+    ctxG.fillRect(x, y, x2 - x - 1, PAD_T + ph - y);
+  }
+
+  // GUE Wigner curve (cyan)
+  ctxG.strokeStyle = 'rgba(0,212,232,0.95)'; ctxG.lineWidth = 1.6;
+  ctxG.beginPath();
+  for (let k = 0; k <= 200; k++) {
+    const s = (k / 200) * HIST_MAX;
+    const y = gue_pdf(s);
+    const px = x2px(s), py = y2py(y);
+    k === 0 ? ctxG.moveTo(px, py) : ctxG.lineTo(px, py);
+  }
+  ctxG.stroke();
+
+  // Poisson (red dashed)
+  ctxG.strokeStyle = 'rgba(232,64,64,0.85)'; ctxG.lineWidth = 1.2;
+  ctxG.setLineDash([4, 3]);
+  ctxG.beginPath();
+  for (let k = 0; k <= 200; k++) {
+    const s = (k / 200) * HIST_MAX;
+    const y = poi_pdf(s);
+    const px = x2px(s), py = y2py(y);
+    k === 0 ? ctxG.moveTo(px, py) : ctxG.lineTo(px, py);
+  }
+  ctxG.stroke();
+  ctxG.setLineDash([]);
+
+  // Y-axis labels
+  ctxG.fillStyle = '#443818';
+  ctxG.fillText('1.0', 4, y2py(1.0) + 3);
+  ctxG.fillText('0.5', 4, y2py(0.5) + 3);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════════════════════
+let spk_acc = 0, stat_frames = 0;
+function updateStats() {
+  spk_acc += spk_total;
+  stat_frames++;
+  if (stat_frames >= 20) {
+    const rate = (spk_acc / stat_frames) * SPF / DT / SPF;
+    document.getElementById('sv-spk').textContent = (rate | 0);
+    spk_acc = stat_frames = 0;
+  }
+  let cx = 0, cy = 0;
+  for (let i = 0; i < NC; i++) { cx += Math.cos(fp[i]); cy += Math.sin(fp[i]); }
+  const coh = Math.sqrt(cx*cx + cy*cy) / NC;
+  document.getElementById('sv-coh').textContent = coh.toFixed(3);
+
+  let ve_sum = 0;
+  for (let i = 0; i < NC; i++) ve_sum += Math.abs(Ve[i]);
+  document.getElementById('sv-ve').textContent = (ve_sum / NC).toFixed(3);
+
+  const cur_idx = (var_ptr - 1 + VAR_H) % VAR_H;
+  document.getElementById('sv-ratio').textContent = rat_h[cur_idx].toFixed(3);
+  document.getElementById('sv-t').textContent = t_s.toFixed(1) + 's';
+  document.getElementById('sv-pk').textContent = last_npk || '—';
+  document.getElementById('sv-ks').textContent = last_npk ? last_ks_gue.toFixed(3) : '—';
+
+  const el = document.getElementById('reg');
+  if      (beta < 0.68) { el.textContent = 'SUBCRITICAL';  el.className = 'regime sub'; }
+  else if (beta > 1.42) { el.textContent = 'SUPERCRITICAL';el.className = 'regime super'; }
+  else                  { el.textContent = 'CRITICAL';     el.className = 'regime crit'; }
+
+  if (vc_on && gate_total_acc > 0) {
+    const pct = gate_fired_acc / gate_total_acc;
+    document.getElementById('gate-bar-fill').style.width = (pct * 100).toFixed(1) + '%';
+    document.getElementById('gate-ratio-txt').textContent =
+      (gate_fired_acc | 0) + '/' + (gate_total_acc | 0) + '  (' + (pct * 100).toFixed(0) + '%)';
+    gate_fired_acc = 0; gate_total_acc = 0;
+  } else if (!vc_on) {
+    document.getElementById('gate-bar-fill').style.width = '0%';
+    document.getElementById('gate-ratio-txt').textContent = 'GATE OFF';
+  }
+
+  let si_sum = 0, si_cnt = 0;
+  for (let k = 0; k < Math.min(var_ptr, 30); k++) {
+    si_sum += rat_h[(var_ptr - 1 - k + VAR_H) % VAR_H];
+    si_cnt++;
+  }
+  const si = si_cnt > 0 ? si_sum / si_cnt : 0;
+  const si_el = document.getElementById('stability-txt');
+  si_el.textContent = si.toFixed(4);
+  if      (si < 0.35) si_el.style.color = 'var(--accent)';
+  else if (si < 0.7)  si_el.style.color = 'var(--amber)';
+  else                si_el.style.color = 'var(--danger)';
+}
+
+function loop() {
+  for (let s = 0; s < SPF; s++) step();
+  renderPhase();
+  renderSpike();
+  renderField();
+  renderTakens();
+  renderVar();
+  renderGUE();
+  updateStats();
+  requestAnimationFrame(loop);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CONTROLS
+// ═══════════════════════════════════════════════════════════════
+document.getElementById('sl-b').addEventListener('input', e => {
+  beta = parseFloat(e.target.value);
+  document.getElementById('v-b').textContent = beta.toFixed(2);
+});
+document.getElementById('sl-e').addEventListener('input', e => {
+  epsilon = parseFloat(e.target.value);
+  document.getElementById('v-e').textContent = epsilon.toFixed(3);
+});
+document.getElementById('sl-g').addEventListener('input', e => {
+  gamma_ep = parseFloat(e.target.value);
+  document.getElementById('v-g').textContent = gamma_ep.toFixed(2);
+});
+document.getElementById('sl-tep').addEventListener('input', e => {
+  tau_ep = parseInt(e.target.value);
+  document.getElementById('v-tep').textContent = tau_ep;
+});
+document.getElementById('sl-a').addEventListener('input', e => {
+  alpha_ep = parseFloat(e.target.value);
+  document.getElementById('v-a').textContent = alpha_ep.toFixed(3);
+});
+document.getElementById('sl-tau').addEventListener('input', e => {
+  tau_delay = parseInt(e.target.value);
+  document.getElementById('v-tau').textContent = tau_delay;
+});
+
+document.getElementById('btn-vc').addEventListener('click', () => {
+  vc_on = !vc_on;
+  const btn = document.getElementById('btn-vc');
+  btn.textContent = vc_on ? 'ENABLED' : 'DISABLED';
+  btn.className   = vc_on ? 'gate-on' : 'gate-off';
+  gate_fired_acc = 0; gate_total_acc = 0;
+});
+document.getElementById('sl-vc').addEventListener('input', e => {
+  vc_thr = parseFloat(e.target.value);
+  document.getElementById('v-vc').textContent = vc_thr.toFixed(2);
+});
+
+// FREQ MODE TOGGLE — re-init system on switch so new frequencies take effect
+document.getElementById('btn-prime').addEventListener('click', () => {
+  prime_mode = !prime_mode;
+  const btn = document.getElementById('btn-prime');
+  btn.textContent = prime_mode ? 'PRIME-LOG' : 'UNIFORM';
+  btn.className   = prime_mode ? 'prime-on' : 'prime-off';
+  document.getElementById('hdr-mode').textContent = prime_mode ? 'PRIME-LOG' : 'UNIFORM';
+  document.getElementById('hdr-mode').style.color = prime_mode ? 'var(--gold)' : 'var(--accent)';
+  document.getElementById('freq-txt').textContent = prime_mode ? 'log(p_i) → [1,8]Hz' : 'UNIFORM [1,8]Hz';
+  init();
+});
+
+document.getElementById('btn-analyze').addEventListener('click', analyzeSpectrum);
+document.getElementById('btn-snap').addEventListener('click', snapshotCurrent);
+document.getElementById('btn-clear-snap').addEventListener('click', clearSnapshot);
+
+document.getElementById('btn-slow').addEventListener('click', () => {
+  slow_on = !slow_on;
+  const btn = document.getElementById('btn-slow');
+  btn.textContent = slow_on ? 'ENABLED' : 'DISABLED';
+  btn.className   = slow_on ? 'on' : 'off';
+  document.getElementById('kv').className = slow_on ? 'kill-overlay' : 'kill-overlay vis';
+  if (slow_on) {
+    for (let i = 0; i < NC; i++) {
+      sA[i] = A_BASE * (0.8 + Math.random() * 0.4);
+      sp[i] = Math.random() * PI2;
+    }
+  }
+});
+
+document.getElementById('btn-rst').addEventListener('click', init);
+
+document.getElementById('btn-prb').addEventListener('click', () => {
+  const cx = 3 + Math.floor(Math.random() * (N - 6));
+  const cy = 3 + Math.floor(Math.random() * (N - 6));
+  for (let dy = -3; dy <= 3; dy++) {
+    for (let dx = -3; dx <= 3; dx++) {
+      const i = I(cx + dx, cy + dy);
+      fA[i] = A_CLAMP;
+      fp[i] = Math.random() * PI2;
+    }
+  }
+});
+
+init();
+loop();
+</script>
+</body>
+</html>
